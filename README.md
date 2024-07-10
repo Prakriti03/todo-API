@@ -4,6 +4,7 @@ A simple Express-based CRUD API for managing TODO items.
 
 ## Features
 
+-User Authenticaton and Authorization
 - Create, Read, Update, and Delete TODO items
 - RESTful API endpoints
 - JSON data format
@@ -28,6 +29,9 @@ npm start
 
 ## API Endpoints
 
+- `POST /user`: Create valid credentials (name, email, password)
+- `POST /auth/login`: Login with valid credentials(name, email, password)
+- `POST /auth/refresh`: Post the refresh token generated during authentication to get new access token
 - `GET /todos`: Retrieve all TODO items
 - `GET /todos/:id`: Retrieve a specific TODO item
 - `POST /todos`: Create a new TODO item
