@@ -7,6 +7,3 @@ export function createUser(req:Request, res : Response){
     res.json(body);
 }
 
-export function getUserbyId(req:Request, res:Response){
-
-}
