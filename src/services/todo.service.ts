@@ -1,4 +1,4 @@
-import * as TodoModel from "../model/todos";
+import * as TodoModel from "../model/todos.model";
 import { Todo } from "../interfaces/todo";
 
 export const getTodos = (userId : string) => {

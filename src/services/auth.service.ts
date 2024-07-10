@@ -1,10 +1,11 @@
 import bcrypt from "bcrypt";
 import { User } from "../interfaces/user";
-import { sign, JwtPayload, verify } from "jsonwebtoken";
+import { sign, JwtPayload, Secret, verify } from "jsonwebtoken";
 import config from "../config";
 import { getUserbyEmail } from "./user.service";
 
-export async function login(body: Pick<User, "email" | "password" >) {
+
+export async function login(body: Pick<User, "email" | "password">) {
   const existingUser = getUserbyEmail(body.email);
 
   if (!existingUser) {
@@ -18,7 +19,6 @@ export async function login(body: Pick<User, "email" | "password" >) {
     existingUser.password
   );
 
-
   if (!isValidPassword) {
     return {
       error: "Invalid password",
@@ -26,57 +26,50 @@ export async function login(body: Pick<User, "email" | "password" >) {
   }
 
   const payload = {
-    id : existingUser.id,
-    name : existingUser.name,
-    email : existingUser.email,
-  };
-
-  const accessToken =  sign(payload, config.jwt.secret!, {
-    expiresIn : config.jwt.accessTokenExpiryMS,
-  });
-
-  const refreshToken =  sign(payload, config.jwt.secret!, {
-    expiresIn : config.jwt.refreshTokenExpiryMS,
-  });
-
-  return{
-    accessToken,
-    refreshToken,
-  };
-}
-export const refresh = (oldRefreshToken: string) => {
-  if (!oldRefreshToken) {
-    return {
-      message: 'Invalid refresh token',
-    };
-  }
-
-  let isValidToken: JwtPayload;
-  try {
-    isValidToken = verify(oldRefreshToken, config.jwt.secret!) as JwtPayload;
-  } catch (error) {
-    return {
-      message: 'Invalid refresh token',
-    };
-  }
-
-  const payload = {
-    id: isValidToken.id,
-    name: isValidToken.name,
-    email: isValidToken.email,
+    id: existingUser.id,
+    name: existingUser.name,
+    email: existingUser.email,
   };
 
   const accessToken = sign(payload, config.jwt.secret!, {
-    expiresIn: parseInt(config.jwt.accessTokenExpiryMS),
+    expiresIn: config.jwt.accessTokenExpiryMS,
   });
 
-  const newRefreshToken = sign(payload, config.jwt.secret!, {
-    expiresIn: parseInt(config.jwt.refreshTokenExpiryMS),
+  const refreshToken = sign(payload, config.jwt.secret!, {
+    expiresIn: config.jwt.refreshTokenExpiryMS,
   });
 
   return {
     accessToken,
-    newRefreshToken,
+    refreshToken,
   };
-};
+}
 
+
+export function refreshToken(oldRefreshToken: string) {
+  if (!oldRefreshToken) {
+    return {
+      error: "Refresh token is required",
+    };
+  }
+
+  const payload = verify(oldRefreshToken, config.jwt.secret!) as JwtPayload;
+
+  if (!payload || !payload.id || !payload.email || !payload.name) {
+    return { error: "Invalid refresh token" };
+  }
+
+  const newPayload: Pick<User, "id" | "name" | "email"> = {
+    id: payload.id,
+    name: payload.name,
+    email: payload.email,
+  };
+
+  const accessToken = sign(newPayload, config.jwt.secret!, {
+    expiresIn: config.jwt.accessTokenExpiryMS,
+  });
+
+  return {
+    accessToken,
+  };
+}
