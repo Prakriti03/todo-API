@@ -1,4 +1,5 @@
 import express from "express";
+import {auth} from "../middlewares/auth.middleware"
 import {
   getTodos,
   getTodosById,
@@ -9,14 +10,14 @@ import {
 
 const router = express();
 
-router.get("/", getTodos);
+router.get("/", auth, getTodos);
 
-router.get("/:id", getTodosById);
+router.get("/:id", auth, getTodosById);
 
-router.post("/", addTodo);
+router.post("/", auth, addTodo);
 
-router.delete("/:id", deleteTodo);
+router.delete("/:id", auth, deleteTodo);
 
-router.put("/:id", updateTodo);
+router.put("/:id", auth, updateTodo);
 
 export default router;

@@ -1,20 +1,9 @@
 import { Todo } from "../interfaces/todo";
 
-let todos = [
-  {
-    id: "1",
-    title: "Wash dishes",
-    completed: false,
-  },
-  {
-    id: "2",
-    title: "Do Laundry",
-    completed: true,
-  },
-];
+let todos : Todo[] =[];
 
-export const getTodos = (): Todo[] => {
-  return todos;
+export const getTodos = (userId: string): Todo[] => {
+  return todos.filter(todo=>todo.userID===userId);
 };
 
 /**
@@ -25,8 +14,8 @@ export const getTodos = (): Todo[] => {
  * @returns The function `getTodosById` is returning the todo item with the specified `id` from the
  * `todos` array.
  */
-export const getTodosById = (id: string) => {
-  const data = todos.find(({ id: todoId }) => todoId === id);
+export const getTodosById = (id: string, userId : string) => {
+  const data = todos.find(todo => todo.id === id && todo.userID === userId);
   return data;
 };
 
@@ -37,10 +26,11 @@ export const getTodosById = (id: string) => {
  * `Todo` type except for the `id` property.
  * @returns The function `addTodo` is returning the updated `todos` array after adding a new todo item.
  */
-export const addTodo = (todo: Omit<Todo, "id">) => {
+export const addTodo = (todo: Omit<Todo, "id" | "userID" >, userId : string) => {
   todos.push({
-    id: `${todos.length + 1}`,
+    id: `${todos.length + 1}`, userID : userId,
     ...todo,
+    
   });
   return todos;
 };
@@ -53,8 +43,8 @@ export const addTodo = (todo: Omit<Todo, "id">) => {
  * @returns The `deleteTodo` function is returning an array of `Todo` objects after filtering out the
  * todo with the specified `id`.
  */
-export const deleteTodo = (id: string): Todo[] => {
-  todos = todos.filter((todo) => todo.id !== id);
+export const deleteTodo = (id: string, userId : string): Todo[] => {
+  todos = todos.filter(todo => !(todo.id === id && todo.userID === userId));
   return todos;
 };
 
@@ -69,8 +59,8 @@ export const deleteTodo = (id: string): Todo[] => {
  * @returns The function `updateTodo` is returning the updated todo item after updating it with the new
  * values provided.
  */
-export const updateTodo = (id: string, todo: Todo): Todo => {
-  let todoToUpdate = getTodosById(id);
+export const updateTodo = (id: string, todo: Todo, userId : string): Todo => {
+  let todoToUpdate = getTodosById(id, userId);
 
   todoToUpdate = { ...todoToUpdate, ...todo };
 

@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
-import * as TodoServices from "../services/todoService";
+import * as TodoServices from "../services/todo.service";
 import { error } from "console";
+import { strict } from "assert";
+
 
 /**
  * The function `getTodos` retrieves todos data and sends it as a JSON response.
@@ -10,7 +12,8 @@ import { error } from "console";
  * manage the response to the client's request.
  */
 export const getTodos = (req: Request, res: Response) => {
-  const data = TodoServices.getTodos();
+  const { userId } = req.headers;
+  const data = TodoServices.getTodos(userId as string);
   res.json(data);
 };
 
@@ -29,8 +32,9 @@ export const getTodos = (req: Request, res: Response) => {
  * object `{ error: "Todo not found" }` will be returned as a
  */
 export const getTodosById = (req: Request, res: Response) => {
-  const { id } = req.params;
-  const data = TodoServices.getTodosById(id);
+  const { id} = req.params;
+  const {userId} = req.headers;
+  const data = TodoServices.getTodosById(id, userId as string);
 
   if (!data) {
     res.json({ error: "Todo not found" });
@@ -53,6 +57,7 @@ export const getTodosById = (req: Request, res: Response) => {
  */
 export const addTodo = (req: Request, res: Response) => {
   const todo = req.body;
+  const {userId} = req.headers;
 
   if (!todo || !todo.title) {
     res.json({ error: "Todo title is required" });
@@ -63,7 +68,7 @@ export const addTodo = (req: Request, res: Response) => {
     todo.completed = false;
   }
 
-  const data = TodoServices.addTodo(todo);
+  const data = TodoServices.addTodo(todo, userId as string) ;
   res.json(data);
 };
 
@@ -78,7 +83,8 @@ export const addTodo = (req: Request, res: Response) => {
  */
 export const deleteTodo = (req: Request, res: Response) => {
   const { id } = req.params;
-  const data = TodoServices.deleteTodo(id);
+  const {userId} = req.headers;
+  const data = TodoServices.deleteTodo(id,userId as string);
 
   res.json(data);
 };
@@ -93,11 +99,12 @@ export const deleteTodo = (req: Request, res: Response) => {
  */
 export const updateTodo = (req: Request, res: Response) => {
   const { id } = req.params;
-  if (!TodoServices.getTodosById(id)) {
+  const {userId} = req.headers;
+  if (!TodoServices.getTodosById(id, userId as string)) {
     res.json([]);
   }
   const todo = req.body;
-  const data = TodoServices.updateTodo(id, todo);
+  const data = TodoServices.updateTodo(id, todo, userId as string);
 
   res.json([data]);
 };
