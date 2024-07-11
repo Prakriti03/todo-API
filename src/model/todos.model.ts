@@ -27,12 +27,15 @@ export const getTodosById = (id: string, userId : string) => {
  * @returns The function `addTodo` is returning the updated `todos` array after adding a new todo item.
  */
 export const addTodo = (todo: Omit<Todo, "id" | "userID" >, userId : string) => {
+  const userTodos = todos.filter(todo => todo.userID === userId);
+
   todos.push({
-    id: `${todos.length + 1}`, userID : userId,
+    id: `${userTodos.length + 1}`, userID : userId,
     ...todo,
     
   });
-  return todos;
+  
+  return todos.filter(todo => todo.userID === userId);
 };
 
 /**
@@ -45,7 +48,8 @@ export const addTodo = (todo: Omit<Todo, "id" | "userID" >, userId : string) => 
  */
 export const deleteTodo = (id: string, userId : string): Todo[] => {
   todos = todos.filter(todo => !(todo.id === id && todo.userID === userId));
-  return todos;
+  const userTodos = todos.filter(todo => todo.userID === userId);
+  return userTodos;
 };
 
 /**

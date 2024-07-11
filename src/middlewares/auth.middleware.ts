@@ -1,6 +1,10 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { JwtPayload, verify } from "jsonwebtoken";
 import config from "../config";
+import { User } from "../interfaces/user";
+import { Request } from "../interfaces/auth";
+import { UnauthenticatedError } from "../errors/unauthenticatedError";
+import { ForbiddenError } from "../errors/forbiddenError";
 
 /**
  * The provided TypeScript function `auth` is used for authentication by verifying a Bearer token in
@@ -19,28 +23,47 @@ import config from "../config";
  * it either calls `next()` to proceed to the next middleware function in the request-response cycle or
  * it returns early from the function without performing any further actions.
  */
-export function auth(req: Request, res: Response, next: NextFunction) {
+export function authentication(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const { authorization } = req.headers;
 
   if (!authorization) {
-    next(new Error("unauthenticated"));
-    return;
+    return next(new UnauthenticatedError("Unauthenticated"));
+
   }
 
   const token = authorization.split(" ");
 
   if (token.length !== 2 || token[0] !== "Bearer") {
-    next(new Error("Unauthenticated"));
 
-    return;
+    return next(new UnauthenticatedError("Unauthenticated"));
+
   }
 
-  const decoded = verify(token[1], config.jwt.secret!) as JwtPayload;
-  if (!decoded) {
-    return;
+  try {
+
+    const user = verify(token[1], config.jwt.secret!) as User;
+
+    req.user = user;
+    next();
+  } catch (error) {
+
+    next(new UnauthenticatedError("Unauthenticated"));
   }
 
+}
 
-  req.headers.userId = decoded.id;
-  next();
+export function authorize(role: string) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user!;
+
+    if (!user.role.includes(role)) {
+      return next(new ForbiddenError("Forbidden"));
+    }
+
+    next();
+  };
 }

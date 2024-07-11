@@ -1,17 +1,34 @@
 import { error } from "console";
-import * as UserModel from "../model/user.model"
-import {User } from "../interfaces/user";
+import * as UserModel from "../model/user.model";
+import { User } from "../interfaces/user";
 import bcrypt from "bcrypt";
+import { InternalServerError } from "../errors/internalServerError";
+import { NotFoundError } from "../errors/notFoundError";
+import { ValidationError } from "../errors/validationError";
+import { ConflictError } from "../errors/conflictError";
 
-export function getUserbyId(id:string){
+export function getUsers() {
+  try{
+
+    const data = UserModel.getUsers();
+    return data;
+  }catch(error){
+    throw new InternalServerError("Error fetching users");
+  }
+}
+export function getUserbyId(id: string) {
+
+  try{
+
     const data = UserModel.getUserbyId(id);
-
-    if(!data){
-        return{
-            error : `User with id : ${id} not found`
-        };
+  
+    if (!UserModel.getUserbyId(id)) {
+      throw new NotFoundError(`User with id: ${id} not found`);
     }
     return data;
+  }catch(error){
+    throw new InternalServerError("Error fetching users");
+  }
 }
 
 /**
@@ -23,24 +40,33 @@ export function getUserbyId(id:string){
  * with the same email already exists in the database, the function will return without creating a new
  * user.
  */
-export async function createUser(user:User){
-    
+export async function createUser(user: User) {
     if(!(user.email && user.password && user.name)){
-        return;
+      throw new ValidationError("Missing required fields: email, password, name");;
     }
 
-    if(UserModel.getUserbyEmail(user.email)){
-        return;
+    try{
+
+      if(UserModel.getUserbyEmail(user.email)){
+        throw new ConflictError(`User with email: ${user.email} already exists`);
+      }
+  
+      const password = await bcrypt.hash(user.password, 10);
+      user.password = password;
+      UserModel.createUser(user);
+    }catch(error){
+
+      throw new InternalServerError("Error creating user");
     }
 
-    const password = await bcrypt.hash(user.password, 10);
-    user.password = password;
-    UserModel.createUser(user);
 }
 
+export function getUserbyEmail(email: string) {
+  try{
 
-export function getUserbyEmail(email:string){
     const data = UserModel.getUserbyEmail(email);
     return data;
+  }catch(error){
+    throw new InternalServerError("Error fetching user by email");
+  }
 }
-

@@ -1,5 +1,5 @@
 import express from "express";
-import {auth} from "../middlewares/auth.middleware"
+import {authentication,authorize} from "../middlewares/auth.middleware"
 import {
   getTodos,
   getTodosById,
@@ -10,14 +10,14 @@ import {
 
 const router = express();
 
-router.get("/", auth, getTodos);
+router.get("/", authentication, getTodos);
 
-router.get("/:id", auth, getTodosById);
+router.get("/:id", authentication, getTodosById);
 
-router.post("/", auth, addTodo);
+router.post("/", authentication, addTodo);
 
-router.delete("/:id", auth, deleteTodo);
+router.delete("/:id", authentication, deleteTodo);
 
-router.put("/:id", auth, updateTodo);
+router.put("/:id", authentication, updateTodo);
 
 export default router;

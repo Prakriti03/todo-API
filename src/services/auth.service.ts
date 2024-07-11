@@ -3,15 +3,14 @@ import { User } from "../interfaces/user";
 import { sign, JwtPayload, Secret, verify } from "jsonwebtoken";
 import config from "../config";
 import { getUserbyEmail } from "./user.service";
-
+import { UnauthenticatedError } from "../errors/unauthenticatedError";
+import { BadRequestError } from "../errors/badRequestError";
 
 export async function login(body: Pick<User, "email" | "password">) {
   const existingUser = getUserbyEmail(body.email);
 
   if (!existingUser) {
-    return {
-      error: "Invalid",
-    };
+    throw new UnauthenticatedError("User is not created");
   }
 
   const isValidPassword = await bcrypt.compare(
@@ -20,15 +19,14 @@ export async function login(body: Pick<User, "email" | "password">) {
   );
 
   if (!isValidPassword) {
-    return {
-      error: "Invalid password",
-    };
+    throw new UnauthenticatedError("Invalid credentials");
   }
 
   const payload = {
     id: existingUser.id,
     name: existingUser.name,
     email: existingUser.email,
+    role: existingUser.role,
   };
 
   const accessToken = sign(payload, config.jwt.secret!, {
@@ -45,18 +43,20 @@ export async function login(body: Pick<User, "email" | "password">) {
   };
 }
 
-
 export function refreshToken(oldRefreshToken: string) {
   if (!oldRefreshToken) {
-    return {
-      error: "Refresh token is required",
-    };
+    throw new BadRequestError("Refresh token is required");
   }
 
-  const payload = verify(oldRefreshToken, config.jwt.secret!) as JwtPayload;
+  let payload: JwtPayload;
+  try {
+    payload = verify(oldRefreshToken, config.jwt.secret!) as JwtPayload;
+  } catch (error) {
+    throw new UnauthenticatedError("Invalid refresh token");
+  }
 
   if (!payload || !payload.id || !payload.email || !payload.name) {
-    return { error: "Invalid refresh token" };
+    throw new UnauthenticatedError("Invalid refresh token");
   }
 
   const newPayload: Pick<User, "id" | "name" | "email"> = {

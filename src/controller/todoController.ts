@@ -1,5 +1,7 @@
-import { Request, Response } from "express";
+import {  Response } from "express";
+import { Request } from "../interfaces/auth";
 import * as TodoServices from "../services/todo.service";
+import { StatusCodes } from "http-status-codes";
 import { error } from "console";
 import { strict } from "assert";
 
@@ -12,9 +14,14 @@ import { strict } from "assert";
  * manage the response to the client's request.
  */
 export const getTodos = (req: Request, res: Response) => {
-  const { userId } = req.headers;
-  const data = TodoServices.getTodos(userId as string);
-  res.json(data);
+  const userId = req.user?.id;
+  try{
+
+    const data = TodoServices.getTodos(userId as string);
+    res.status(StatusCodes.OK).json(data);
+  }catch(error){
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error fetching todos" });
+  }
 };
 
 /**
@@ -33,15 +40,19 @@ export const getTodos = (req: Request, res: Response) => {
  */
 export const getTodosById = (req: Request, res: Response) => {
   const { id} = req.params;
-  const {userId} = req.headers;
-  const data = TodoServices.getTodosById(id, userId as string);
+  const userId = req.user?.id;
+  try{
 
-  if (!data) {
-    res.json({ error: "Todo not found" });
-    return;
+    const data = TodoServices.getTodosById(id, userId as string);
+    if (!data) {
+      res.status(StatusCodes.NOT_FOUND).json({ error: "Todo not found" });
+      return;
+    }
+    res.status(StatusCodes.OK).json(data);
+  }catch(error){
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error fetching todo" });
   }
 
-  res.json(data);
 };
 
 /**
@@ -57,10 +68,10 @@ export const getTodosById = (req: Request, res: Response) => {
  */
 export const addTodo = (req: Request, res: Response) => {
   const todo = req.body;
-  const {userId} = req.headers;
+  const userId = req.user?.id;
 
   if (!todo || !todo.title) {
-    res.json({ error: "Todo title is required" });
+    res.status(StatusCodes.BAD_REQUEST).json({ error: "Todo title is required" });
     return;
   }
 
@@ -68,8 +79,13 @@ export const addTodo = (req: Request, res: Response) => {
     todo.completed = false;
   }
 
-  const data = TodoServices.addTodo(todo, userId as string) ;
-  res.json(data);
+  try{
+
+    const data = TodoServices.addTodo(todo, userId as string) ;
+    res.status(StatusCodes.CREATED).json(data);
+  }catch(error){
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error adding todo" });
+  }
 };
 
 /**
@@ -83,10 +99,15 @@ export const addTodo = (req: Request, res: Response) => {
  */
 export const deleteTodo = (req: Request, res: Response) => {
   const { id } = req.params;
-  const {userId} = req.headers;
-  const data = TodoServices.deleteTodo(id,userId as string);
+  const userId = req.user?.id;
+  try{
 
-  res.json(data);
+    const data = TodoServices.deleteTodo(id,userId as string);
+    res.status(StatusCodes.OK).json(data);
+  }catch(error){
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error deleting todo" });
+  }
+
 };
 
 /**
@@ -99,12 +120,18 @@ export const deleteTodo = (req: Request, res: Response) => {
  */
 export const updateTodo = (req: Request, res: Response) => {
   const { id } = req.params;
-  const {userId} = req.headers;
+  const userId = req.user?.id;
   if (!TodoServices.getTodosById(id, userId as string)) {
-    res.json([]);
+    res.status(StatusCodes.NOT_FOUND).json({ error: "Todo not found" });
+    return;
   }
   const todo = req.body;
-  const data = TodoServices.updateTodo(id, todo, userId as string);
+  try{
 
-  res.json([data]);
+    const data = TodoServices.updateTodo(id, todo, userId as string);
+  
+    res.status(StatusCodes.OK).json(data);
+  }catch(error){
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error updating todo" });
+  }
 };

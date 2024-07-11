@@ -1,11 +1,25 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import * as AuthService from "../services/auth.service";
+import { StatusCodes } from "http-status-codes";
+import { UnauthenticatedError } from "../errors/unauthenticatedError";
+import { BadRequestError } from "../errors/badRequestError";
+import loggerWithNameSpace from "../logger";
+import { InternalServerError } from "../errors/internalServerError";
+import { nextTick } from "process";
+import { log } from "console";
 
-export async function login(req: Request, res: Response) {
+const logger = loggerWithNameSpace("AuthController");
+
+export async function login(req: Request, res: Response, next : NextFunction) {
   const { body } = req;
-  const data = await AuthService.login(body);
 
-  res.json(data);
+  try {
+    const data = await AuthService.login(body);
+    logger.info(`User login attempt for ${body.email}`);
+    res.status(StatusCodes.OK).json(data);
+  } catch (error) {
+    next(error);
+  }
 }
 
 /**
@@ -20,18 +34,22 @@ export async function login(req: Request, res: Response) {
  * tokens are successfully retrieved from the `AuthService.refreshToken` function, then the tokens will
  * be sent as a JSON response using `res.json(tokens)`.
  */
-export function refresh(req: Request, res: Response) {
-  const {refreshToken} = req.body;
+export function refresh(req: Request, res: Response, next : NextFunction) {
+  const { refreshToken } = req.body;
 
-  if(!refreshToken){
-    return;
+  if (!refreshToken) {
+    throw new BadRequestError("Refresh token is required");
   }
 
-  const tokens =  AuthService.refreshToken(refreshToken);
+  try {
+    const tokens = AuthService.refreshToken(refreshToken);
+    logger.info(`Refresh token request for ${refreshToken}`);
+    if (!tokens) {
+      throw new UnauthenticatedError("Invalid refresh token");
+    }
 
-  if (!tokens) {
-    return ;
-   }
-  
-  res.json(tokens);
+    res.status(StatusCodes.OK).json(tokens);
+  } catch (error) {
+    next(error);
+  }
 }
