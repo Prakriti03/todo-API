@@ -1,6 +1,10 @@
 import { User } from "../interfaces/user";
+import loggerWithNameSpace from "../logger";
 
-export const users: User[] = [
+const logger = loggerWithNameSpace("userModel");
+
+
+export let users: User[] = [
   {
     id: "1",
     name: "Prakriti",
@@ -30,3 +34,18 @@ export function createUser(user: User) {
 export function getUserbyEmail(email: string) {
   return users.find(({ email: userEmail }) => userEmail === email);
 }
+
+
+export const updateUser = (id: string, updatedUser: User): User => {
+  logger.info(`update user by id`);
+  let user = users.find(({ id: userId }) => userId === id);
+  user = { ...user, ...updatedUser };
+  users = [...users.filter(({ id: userId }) => userId !== id), user];
+  return user;
+};
+
+export function deleteUser(id: string) {
+  logger.info(`delete user by id`);
+  return (users = users.filter((user) =>user.id !== id));
+}
+

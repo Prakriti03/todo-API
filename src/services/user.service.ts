@@ -6,6 +6,9 @@ import { InternalServerError } from "../errors/internalServerError";
 import { NotFoundError } from "../errors/notFoundError";
 import { ValidationError } from "../errors/validationError";
 import { ConflictError } from "../errors/conflictError";
+import loggerWithNameSpace from "../logger";
+
+const logger = loggerWithNameSpace("userService");
 
 export function getUsers() {
   try{
@@ -69,4 +72,23 @@ export function getUserbyEmail(email: string) {
   }catch(error){
     throw new InternalServerError("Error fetching user by email");
   }
+}
+
+export function updateUser(id: string, updatedUser: User){
+  logger.info(`update user by id`);
+  const userExists = UserModel.getUserbyId(id);
+  if (!userExists) {
+    throw new NotFoundError("user not found");
+  }
+  const data = UserModel.updateUser(id, updatedUser);
+  return data;
+};
+
+export function deleteUser(id: string) {
+  logger.info(`delete user by id`);
+  const userToDelete = UserModel.getUserbyId(id);
+  if (!userToDelete) {
+    return userToDelete;
+  }
+  return UserModel.deleteUser(id);
 }

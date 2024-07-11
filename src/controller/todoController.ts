@@ -2,9 +2,12 @@ import {  Response } from "express";
 import { Request } from "../interfaces/auth";
 import * as TodoServices from "../services/todo.service";
 import { StatusCodes } from "http-status-codes";
-import { error } from "console";
+import loggerWithNameSpace from "../logger";
+import { error, log } from "console";
 import { strict } from "assert";
 
+
+const logger = loggerWithNameSpace("toDoController");
 
 /**
  * The function `getTodos` retrieves todos data and sends it as a JSON response.
@@ -44,6 +47,8 @@ export const getTodosById = (req: Request, res: Response) => {
   try{
 
     const data = TodoServices.getTodosById(id, userId as string);
+    logger.info(`User ${userId} requested todo with id ${id}`);
+
     if (!data) {
       res.status(StatusCodes.NOT_FOUND).json({ error: "Todo not found" });
       return;
@@ -82,6 +87,7 @@ export const addTodo = (req: Request, res: Response) => {
   try{
 
     const data = TodoServices.addTodo(todo, userId as string) ;
+    logger.info(`User ${userId} created a new todo `)
     res.status(StatusCodes.CREATED).json(data);
   }catch(error){
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error adding todo" });
@@ -103,6 +109,7 @@ export const deleteTodo = (req: Request, res: Response) => {
   try{
 
     const data = TodoServices.deleteTodo(id,userId as string);
+    logger.info(`User ${userId} deleted todo of id ${id}`);
     res.status(StatusCodes.OK).json(data);
   }catch(error){
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error deleting todo" });
@@ -129,7 +136,7 @@ export const updateTodo = (req: Request, res: Response) => {
   try{
 
     const data = TodoServices.updateTodo(id, todo, userId as string);
-  
+    logger.info(`User ${userId} updated todo of id ${id}`);
     res.status(StatusCodes.OK).json(data);
   }catch(error){
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error updating todo" });

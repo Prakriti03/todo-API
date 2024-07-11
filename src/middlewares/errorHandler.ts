@@ -5,6 +5,9 @@ import { ForbiddenError } from "../errors/forbiddenError";
 import { NotFoundError } from "../errors/notFoundError";
 import { InternalServerError } from "../errors/internalServerError";
 import { UnauthenticatedError } from "../errors/unauthenticatedError";
+import loggerWithNameSpace from "../logger";
+
+const logger = loggerWithNameSpace("ErrorHandler");
 
 export function errorHandler(
   err: Error,
@@ -14,6 +17,10 @@ export function errorHandler(
 ) {
   let statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
   let message = "Something went wrong";
+
+  if(err.stack){
+    logger.error(err.stack);
+  }
 
   if (err instanceof BadRequestError) {
     statusCode = StatusCodes.BAD_REQUEST;
