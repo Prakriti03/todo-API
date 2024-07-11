@@ -11,26 +11,23 @@ import loggerWithNameSpace from "../logger";
 const logger = loggerWithNameSpace("userService");
 
 export function getUsers() {
-  try{
-
+  try {
     const data = UserModel.getUsers();
     return data;
-  }catch(error){
+  } catch (error) {
     throw new InternalServerError("Error fetching users");
   }
 }
 export function getUserbyId(id: string) {
-
-  try{
-
+  try {
     const data = UserModel.getUserbyId(id);
-  
-    if (!UserModel.getUserbyId(id)) {
+
+    if (!data) {
       throw new NotFoundError(`User with id: ${id} not found`);
     }
     return data;
-  }catch(error){
-    throw new InternalServerError("Error fetching users");
+  } catch (error) {
+    throw error;
   }
 }
 
@@ -44,37 +41,28 @@ export function getUserbyId(id: string) {
  * user.
  */
 export async function createUser(user: User) {
-    if(!(user.email && user.password && user.name)){
-      throw new ValidationError("Missing required fields: email, password, name");;
-    }
+  if (!(user.email && user.password && user.name)) {
+    throw new ValidationError("Missing required fields: email, password, name");
+  }
 
-    try{
-
-      if(UserModel.getUserbyEmail(user.email)){
-        throw new ConflictError(`User with email: ${user.email} already exists`);
-      }
-  
-      const password = await bcrypt.hash(user.password, 10);
-      user.password = password;
-      UserModel.createUser(user);
-    }catch(error){
-
-      throw new InternalServerError("Error creating user");
-    }
-
+  if (UserModel.getUserbyEmail(user.email)) {
+    throw new ConflictError(`User with email: ${user.email} already exists`);
+  }
+  const password = await bcrypt.hash(user.password, 10);
+  user.password = password;
+  UserModel.createUser(user);
 }
 
 export function getUserbyEmail(email: string) {
-  try{
-
+  try {
     const data = UserModel.getUserbyEmail(email);
     return data;
-  }catch(error){
+  } catch (error) {
     throw new InternalServerError("Error fetching user by email");
   }
 }
 
-export function updateUser(id: string, updatedUser: User){
+export function updateUser(id: string, updatedUser: User) {
   logger.info(`update user by id`);
   const userExists = UserModel.getUserbyId(id);
   if (!userExists) {
@@ -82,7 +70,7 @@ export function updateUser(id: string, updatedUser: User){
   }
   const data = UserModel.updateUser(id, updatedUser);
   return data;
-};
+}
 
 export function deleteUser(id: string) {
   logger.info(`delete user by id`);

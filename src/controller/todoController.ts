@@ -1,10 +1,12 @@
-import {  Response } from "express";
+import {  NextFunction, Response } from "express";
 import { Request } from "../interfaces/auth";
 import * as TodoServices from "../services/todo.service";
 import { StatusCodes } from "http-status-codes";
 import loggerWithNameSpace from "../logger";
-import { error, log } from "console";
-import { strict } from "assert";
+import { InternalServerError } from "../errors/internalServerError";
+import { BadRequestError } from "../errors/badRequestError";
+import { nextTick } from "process";
+
 
 
 const logger = loggerWithNameSpace("toDoController");
@@ -16,14 +18,14 @@ const logger = loggerWithNameSpace("toDoController");
  * HTTP response that the server sends back to the client. It allows you to send data, set headers, and
  * manage the response to the client's request.
  */
-export const getTodos = (req: Request, res: Response) => {
+export const getTodos = (req: Request, res: Response, next:NextFunction) => {
   const userId = req.user?.id;
   try{
 
     const data = TodoServices.getTodos(userId as string);
     res.status(StatusCodes.OK).json(data);
   }catch(error){
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error fetching todos" });
+    next(new InternalServerError("Invalid refresh token"))
   }
 };
 
@@ -41,21 +43,17 @@ export const getTodos = (req: Request, res: Response) => {
  * the `data` variable is empty or falsy, indicating that the todo was not found, then an error message
  * object `{ error: "Todo not found" }` will be returned as a
  */
-export const getTodosById = (req: Request, res: Response) => {
+export const getTodosById = (req: Request, res: Response, next:NextFunction) => {
   const { id} = req.params;
   const userId = req.user?.id;
   try{
 
     const data = TodoServices.getTodosById(id, userId as string);
     logger.info(`User ${userId} requested todo with id ${id}`);
-
-    if (!data) {
-      res.status(StatusCodes.NOT_FOUND).json({ error: "Todo not found" });
-      return;
-    }
     res.status(StatusCodes.OK).json(data);
+
   }catch(error){
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error fetching todo" });
+    next(error)
   }
 
 };
@@ -71,13 +69,12 @@ export const getTodosById = (req: Request, res: Response) => {
  * item using `TodoServices.addTodo(todo)`. This data object is then sent as a JSON response using
  * `res.json(data)`.
  */
-export const addTodo = (req: Request, res: Response) => {
+export const addTodo = (req: Request, res: Response, next:NextFunction) => {
   const todo = req.body;
   const userId = req.user?.id;
 
   if (!todo || !todo.title) {
-    res.status(StatusCodes.BAD_REQUEST).json({ error: "Todo title is required" });
-    return;
+    next(new BadRequestError("todo title is required"));
   }
 
   if (todo.completed === undefined) {
@@ -90,7 +87,7 @@ export const addTodo = (req: Request, res: Response) => {
     logger.info(`User ${userId} created a new todo `)
     res.status(StatusCodes.CREATED).json(data);
   }catch(error){
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error adding todo" });
+    next(new InternalServerError("Error creating todo"))
   }
 };
 
@@ -103,7 +100,7 @@ export const addTodo = (req: Request, res: Response) => {
  * the HTTP response that the server sends back to the client. It is used to send data back to the
  * client in the form of JSON, HTML, or other formats. In this case, the `res.json(data)`
  */
-export const deleteTodo = (req: Request, res: Response) => {
+export const deleteTodo = (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
   const userId = req.user?.id;
   try{
@@ -112,7 +109,7 @@ export const deleteTodo = (req: Request, res: Response) => {
     logger.info(`User ${userId} deleted todo of id ${id}`);
     res.status(StatusCodes.OK).json(data);
   }catch(error){
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error deleting todo" });
+    next(error)
   }
 
 };
@@ -125,20 +122,15 @@ export const deleteTodo = (req: Request, res: Response) => {
  * this function, `res.json()` is used to send a JSON response containing the updated todo data back to
  * the client
  */
-export const updateTodo = (req: Request, res: Response) => {
-  const { id } = req.params;
-  const userId = req.user?.id;
-  if (!TodoServices.getTodosById(id, userId as string)) {
-    res.status(StatusCodes.NOT_FOUND).json({ error: "Todo not found" });
-    return;
-  }
-  const todo = req.body;
+export const updateTodo = (req: Request, res: Response, next: NextFunction) => {
   try{
-
+    const { id } = req.params;
+    const userId = req.user?.id;
+    const todo = req.body;
     const data = TodoServices.updateTodo(id, todo, userId as string);
     logger.info(`User ${userId} updated todo of id ${id}`);
     res.status(StatusCodes.OK).json(data);
   }catch(error){
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Error updating todo" });
+    next(error)
   }
 };

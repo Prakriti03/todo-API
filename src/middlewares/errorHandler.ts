@@ -6,6 +6,7 @@ import { NotFoundError } from "../errors/notFoundError";
 import { InternalServerError } from "../errors/internalServerError";
 import { UnauthenticatedError } from "../errors/unauthenticatedError";
 import loggerWithNameSpace from "../logger";
+import { ConflictError } from "../errors/conflictError";
 
 const logger = loggerWithNameSpace("ErrorHandler");
 
@@ -53,6 +54,9 @@ export function errorHandler(
     message = err.message;
   } else if (err instanceof UnauthenticatedError) {
     statusCode = StatusCodes.UNAUTHORIZED;
+    message = err.message;
+  }else if (err instanceof ConflictError){
+    statusCode = StatusCodes.CONFLICT;
     message = err.message;
   }
 

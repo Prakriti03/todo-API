@@ -50,17 +50,9 @@ export async function login(req: Request, res: Response, next : NextFunction) {
 export function refresh(req: Request, res: Response, next : NextFunction) {
   const { refreshToken } = req.body;
 
-  if (!refreshToken) {
-    throw new BadRequestError("Refresh token is required");
-  }
-
   try {
     const tokens = AuthService.refreshToken(refreshToken);
     logger.info(`Refresh token request for ${refreshToken}`);
-    if (!tokens) {
-      throw new UnauthenticatedError("Invalid refresh token");
-    }
-
     res.status(StatusCodes.OK).json(tokens);
   } catch (error) {
     next(error);

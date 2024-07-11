@@ -55,14 +55,15 @@ export function refreshToken(oldRefreshToken: string) {
     throw new UnauthenticatedError("Invalid refresh token");
   }
 
-  if (!payload || !payload.id || !payload.email || !payload.name) {
+  if (!(payload && payload.id && payload.email && payload.name)) {
     throw new UnauthenticatedError("Invalid refresh token");
   }
 
-  const newPayload: Pick<User, "id" | "name" | "email"> = {
+  const newPayload: Pick<User, "id" | "name" | "email" | "role"> = {
     id: payload.id,
     name: payload.name,
     email: payload.email,
+    role : payload.role,
   };
 
   const accessToken = sign(newPayload, config.jwt.secret!, {

@@ -75,14 +75,10 @@ export function getUsers(req: Request, res: Response, next: NextFunction) {
 export function getUserbyId(req: Request, res: Response, next: NextFunction) {
   const { id } = req.params;
 
-
   try {
     const data = UserService.getUserbyId(id);
-    if (data) {
-      res.status(StatusCodes.OK).json(data);
-    } else {
-      res.status(StatusCodes.NOT_FOUND).json({ error: "User not found" });
-    }
+
+    res.status(StatusCodes.OK).json(data);
   } catch (error) {
     next(error);
   }
@@ -115,7 +111,7 @@ export async function updateUser(
     const user = UserService.updateUser(userId, updatedUser);
     res.status(StatusCodes.OK).json(user);
   } catch (error) {
-    next(new BadRequestError("user can't be updated"));
+    next(error);
   }
 }
 
@@ -137,6 +133,7 @@ export async function updateUser(
  * id is not found, it will return a "User with id {id} not found" error message.
  */
 export function deleteUser(req: Request, res: Response, next: NextFunction) {
+
   const { id } = req.params;
   const data = UserService.deleteUser(id);
   if (!data) {
