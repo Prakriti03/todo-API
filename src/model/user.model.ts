@@ -4,7 +4,6 @@ import loggerWithNameSpace from "../utils/logger";
 
 const logger = loggerWithNameSpace("userModel");
 
-
 export let users: User[] = [
   {
     id: "1",
@@ -24,11 +23,11 @@ export function getUserbyId(id: string) {
   return users.find(({ id: userId }) => userId === id);
 }
 
-export function getUserbyQuery(query : GetUserByQuery){
-  const {q} = query;
+export function getUserbyQuery(query: GetUserByQuery) {
+  const { q } = query;
 
-  if(q){
-    return users.find(({id:userId})=> userId===q)
+  if (q) {
+    return users.find(({ id: userId }) => userId === q);
   }
 }
 
@@ -44,7 +43,6 @@ export function getUserbyEmail(email: string) {
   return users.find(({ email: userEmail }) => userEmail === email);
 }
 
-
 export const updateUser = (id: string, updatedUser: User): User => {
   logger.info(`update user by id`);
   let user = users.find(({ id: userId }) => userId === id);
@@ -55,6 +53,5 @@ export const updateUser = (id: string, updatedUser: User): User => {
 
 export function deleteUser(id: string) {
   logger.info(`delete user by id`);
-  return (users = users.filter((user) =>user.id !== id));
+  return (users = users.filter((user) => user.id !== id));
 }
-

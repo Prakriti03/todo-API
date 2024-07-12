@@ -6,7 +6,12 @@ import { deleteUser } from "../controller/user.controller";
 import { updateUser } from "../controller/user.controller";
 import { validateReqBody } from "../middlewares/validator.middleware";
 import { createBrotliCompress } from "zlib";
-import { createUserBodySchema, updateUserSchema } from "../schema/user.schema";
+import {
+  createUserBodySchema,
+  getUserQuerySchema,
+  updateUserSchema,
+} from "../schema/user.schema";
+import { getUserbyQuery } from "../controller/user.controller";
 
 const router = express();
 
@@ -19,6 +24,14 @@ router.post(
 );
 
 router.get("/", authentication, authorize("admin"), getUsers);
+
+router.get(
+  "/user",
+  authentication,
+  authorize("admin"),
+  validateReqBody(getUserQuerySchema),
+  getUserbyQuery
+);
 
 router.get("/:id", authentication, authorize("admin"), getUserbyId);
 

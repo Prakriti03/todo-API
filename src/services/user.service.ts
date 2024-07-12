@@ -1,6 +1,6 @@
 import { error } from "console";
 import * as UserModel from "../model/user.model";
-import { User } from "../interfaces/user";
+import { GetUserByQuery, User } from "../interfaces/user";
 import bcrypt from "bcrypt";
 import { InternalServerError } from "../errors/internalServerError";
 import { NotFoundError } from "../errors/notFoundError";
@@ -21,6 +21,8 @@ export function getUsers() {
 export function getUserbyId(id: string) {
   try {
     const data = UserModel.getUserbyId(id);
+
+    console.log("Inside service getUserbyId")
 
     if (!data) {
       throw new NotFoundError(`User with id: ${id} not found`);
@@ -51,6 +53,12 @@ export async function createUser(user: User) {
   const password = await bcrypt.hash(user.password, 10);
   user.password = password;
   UserModel.createUser(user);
+}
+
+export function getUserByQuery(query: GetUserByQuery) {
+  const data = UserModel.getUserbyQuery(query);
+  console.log("Inside service getuserbyquery")
+  return data;
 }
 
 export function getUserbyEmail(email: string) {

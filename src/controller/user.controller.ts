@@ -85,8 +85,13 @@ export function getUserbyId(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export function getUserbyQuery(query: GetUserByQuery){
-  const q = query
+export function getUserbyQuery(
+  req: Request<any, any, any, GetUserByQuery>,
+  res: Response
+) {
+  const { query } = req;
+  const data = UserService.getUserByQuery(query);
+  res.json(data);
 }
 
 /**
@@ -138,7 +143,6 @@ export async function updateUser(
  * id is not found, it will return a "User with id {id} not found" error message.
  */
 export function deleteUser(req: Request, res: Response, next: NextFunction) {
-
   const { id } = req.params;
   const data = UserService.deleteUser(id);
   if (!data) {

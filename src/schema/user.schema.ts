@@ -1,11 +1,7 @@
 import Joi, { options } from "joi";
 
 export const getUserQuerySchema = Joi.object({
-  q: Joi.string().optional(),
-
-  page: Joi.number().optional().messages({
-    "number.base": "Page must be a number",
-  }),
+  q: Joi.number().greater(0).optional()
 }).options({
   stripUnknown: true,
 });
@@ -17,7 +13,7 @@ export const createUserBodySchema = Joi.object({
 
   email: Joi.string().email().required().messages({
     "any.required": "Email is required",
-    "string..email": "Email must be a valid format",
+    "string.email": "Email must be a valid format",
   }),
 
   password: Joi.string()
@@ -53,7 +49,7 @@ export const updateUserSchema = Joi.object({
   name: Joi.string(),
 
   email: Joi.string().email().messages({
-    "string..email": "Email must be a valid format",
+    "string.email": "Email must be a valid format",
   }),
 
   password: Joi.string()
