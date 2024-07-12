@@ -3,7 +3,7 @@ import * as AuthService from "../services/auth.service";
 import { StatusCodes } from "http-status-codes";
 import { UnauthenticatedError } from "../errors/unauthenticatedError";
 import { BadRequestError } from "../errors/badRequestError";
-import loggerWithNameSpace from "../logger";
+import loggerWithNameSpace from "../utils/logger";
 
 const logger = loggerWithNameSpace("AuthController");
 

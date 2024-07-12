@@ -2,7 +2,7 @@ import {  NextFunction, Response } from "express";
 import { Request } from "../interfaces/auth";
 import * as TodoServices from "../services/todo.service";
 import { StatusCodes } from "http-status-codes";
-import loggerWithNameSpace from "../logger";
+import loggerWithNameSpace from "../utils/logger";
 import { InternalServerError } from "../errors/internalServerError";
 import { BadRequestError } from "../errors/badRequestError";
 import { nextTick } from "process";

@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import * as UserService from "../services/user.service";
 import { StatusCodes } from "http-status-codes";
-import loggerWithNameSpace from "../logger";
+import loggerWithNameSpace from "../utils/logger";
 import { BadRequestError } from "../errors/badRequestError";
 import { NotFoundError } from "../errors/notFoundError";
+import { GetUserByQuery } from "../interfaces/user";
 
 const logger = loggerWithNameSpace("UserController");
 
@@ -82,6 +83,10 @@ export function getUserbyId(req: Request, res: Response, next: NextFunction) {
   } catch (error) {
     next(error);
   }
+}
+
+export function getUserbyQuery(query: GetUserByQuery){
+  const q = query
 }
 
 /**

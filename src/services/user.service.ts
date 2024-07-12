@@ -6,7 +6,7 @@ import { InternalServerError } from "../errors/internalServerError";
 import { NotFoundError } from "../errors/notFoundError";
 import { ValidationError } from "../errors/validationError";
 import { ConflictError } from "../errors/conflictError";
-import loggerWithNameSpace from "../logger";
+import loggerWithNameSpace from "../utils/logger";
 
 const logger = loggerWithNameSpace("userService");
 

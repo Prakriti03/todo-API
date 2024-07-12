@@ -1,5 +1,6 @@
-import { User } from "../interfaces/user";
-import loggerWithNameSpace from "../logger";
+import { func } from "joi";
+import { GetUserByQuery, User } from "../interfaces/user";
+import loggerWithNameSpace from "../utils/logger";
 
 const logger = loggerWithNameSpace("userModel");
 
@@ -21,6 +22,14 @@ export function getUsers() {
 
 export function getUserbyId(id: string) {
   return users.find(({ id: userId }) => userId === id);
+}
+
+export function getUserbyQuery(query : GetUserByQuery){
+  const {q} = query;
+
+  if(q){
+    return users.find(({id:userId})=> userId===q)
+  }
 }
 
 export function createUser(user: User) {

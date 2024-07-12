@@ -5,7 +5,7 @@ import { ForbiddenError } from "../errors/forbiddenError";
 import { NotFoundError } from "../errors/notFoundError";
 import { InternalServerError } from "../errors/internalServerError";
 import { UnauthenticatedError } from "../errors/unauthenticatedError";
-import loggerWithNameSpace from "../logger";
+import loggerWithNameSpace from "../utils/logger";
 import { ConflictError } from "../errors/conflictError";
 
 const logger = loggerWithNameSpace("ErrorHandler");

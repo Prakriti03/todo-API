@@ -6,5 +6,9 @@ export interface User{
     role : string;
 }
 
+export interface GetUserByQuery{
+    q ?: string;
+}
+
 
 
