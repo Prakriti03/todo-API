@@ -27,7 +27,7 @@ describe("User Service Test Suite", () => {
     it("should return array of users", () => {
       userModelGetAllUserStub.returns([]);
       const output = getUsers();
-      console.log(output);
+      console.log(output); 
       expect(output).toStrictEqual([]);
     });
   });

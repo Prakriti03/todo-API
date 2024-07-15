@@ -22,7 +22,7 @@ export function getUserbyId(id: string) {
   try {
     const data = UserModel.getUserbyId(id);
 
-    console.log("Inside service getUserbyId")
+    console.log("Inside service getUserbyId");
 
     if (!data) {
       throw new NotFoundError(`User with id: ${id} not found`);
@@ -52,12 +52,13 @@ export async function createUser(user: User) {
   }
   const password = await bcrypt.hash(user.password, 10);
   user.password = password;
-  UserModel.createUser(user);
+  if (UserModel.createUser(user))
+    return { message: "User created successfully" };
 }
 
 export function getUserByQuery(query: GetUserByQuery) {
   const data = UserModel.getUserbyQuery(query);
-  console.log("Inside service getuserbyquery")
+  console.log("Inside service getuserbyquery");
   return data;
 }
 
