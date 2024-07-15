@@ -31,7 +31,7 @@ describe("User Integration Test Suite", () => {
     };
     it("Should create a new user", async () => {
       let expectedOutput = {
-        message: ""
+        message: "User created successfully"
       };
       const response = await request(app)
         .post("/users/create")
