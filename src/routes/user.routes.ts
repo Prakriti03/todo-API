@@ -18,12 +18,12 @@ const router = express();
 router.post(
   "/signup",
   authentication,
-  authorize("admin"),
+  authorize("user.createUser"),
   validateReqBody(createUserBodySchema),
   createUser
 );
 
-router.get("/", authentication, authorize("admin"), getUsers);
+router.get("/", authentication, authorize("user.get"), getUsers);
 
 router.get(
   "/user",
@@ -33,14 +33,14 @@ router.get(
   getUserbyQuery
 );
 
-router.get("/:id", authentication, authorize("admin"), getUserbyId);
+router.get("/:id", authentication, authorize('user.getUserbyId'), getUserbyId);
 
-router.delete("/:id", authentication, authorize("admin"), deleteUser);
+router.delete("/:id", authentication, authorize('user.deleteUser'), deleteUser);
 
 router.put(
   "/:id",
   authentication,
-  authorize("admin"),
+  authorize("user.updateUser"),
   validateReqBody(updateUserSchema),
   updateUser
 );

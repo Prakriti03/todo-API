@@ -3,7 +3,7 @@ export interface User{
     name : string;
     email : string;
     password : string;
-    role : string;
+    permission : string[];
 }
 
 export interface GetUserByQuery{

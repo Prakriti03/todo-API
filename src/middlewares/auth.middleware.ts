@@ -56,11 +56,11 @@ export function authentication(
 
 }
 
-export function authorize(role: string) {
+export function authorize(permission: string) {
   return (req: Request, res: Response, next: NextFunction) => {
     const user = req.user!;
 
-    if (!user.role.includes(role)) {
+    if (!user.permission.includes(permission)) {
       return next(new ForbiddenError("Forbidden"));
     }
 

@@ -5,6 +5,7 @@ import config from "../config";
 import { getUserbyEmail } from "./user.service";
 import { UnauthenticatedError } from "../errors/unauthenticatedError";
 import { BadRequestError } from "../errors/badRequestError";
+import { permission } from "process";
 
 export async function login(body: Pick<User, "email" | "password">) {
   const existingUser = getUserbyEmail(body.email);
@@ -26,7 +27,7 @@ export async function login(body: Pick<User, "email" | "password">) {
     id: existingUser.id,
     name: existingUser.name,
     email: existingUser.email,
-    role: existingUser.role,
+    permission: existingUser.permission,
   };
 
   const accessToken = sign(payload, config.jwt.secret!, {
@@ -59,11 +60,11 @@ export function refreshToken(oldRefreshToken: string) {
     throw new UnauthenticatedError("Invalid refresh token");
   }
 
-  const newPayload: Pick<User, "id" | "name" | "email" | "role"> = {
+  const newPayload: Pick<User, "id" | "name" | "email" | "permission"> = {
     id: payload.id,
     name: payload.name,
     email: payload.email,
-    role : payload.role,
+    permission : payload.permission,
   };
 
   const accessToken = sign(newPayload, config.jwt.secret!, {

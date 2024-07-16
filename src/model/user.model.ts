@@ -10,7 +10,7 @@ export let users: User[] = [
     name: "Prakriti",
     email: "prakriti@gmail.com",
     password: "$2b$10$Jm7/XAw7vpdZJn7MfKoGoevMsPcEfh2prDFqivWmQlzqDBeGDO9Zq",
-    role: "admin",
+    permission: ['user.get','user.getUserbyId','user.createUser','user.updateUser','user.deleteUser'],
   },
 ];
 
@@ -35,7 +35,7 @@ export function createUser(user: User) {
   return users.push({
     ...user,
     id: `${users.length + 1}`,
-    role: "user",
+    permission: ['todo'],
   });
 }
 

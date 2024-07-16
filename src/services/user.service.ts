@@ -52,6 +52,7 @@ export async function createUser(user: User) {
   }
   const password = await bcrypt.hash(user.password, 10);
   user.password = password;
+  UserModel.createUser(user);
   if (UserModel.createUser(user))
     return { message: "User created successfully" };
 }

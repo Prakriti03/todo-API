@@ -34,7 +34,7 @@ export function errorHandler(
   next: NextFunction
 ) {
   let statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
-  let message = "Something went wrong";
+  let message = "";
 
   if(err.stack){
     logger.error(err.stack);
@@ -58,6 +58,9 @@ export function errorHandler(
   }else if (err instanceof ConflictError){
     statusCode = StatusCodes.CONFLICT;
     message = err.message;
+  }else{
+    statusCode = StatusCodes.ACCEPTED;
+    message = err.message
   }
 
   res.status(statusCode).json({ error: message });
