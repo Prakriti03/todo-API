@@ -1,18 +1,19 @@
 import { error } from "console";
 import * as UserModel from "../model/user.model";
-import { GetUserByQuery, User } from "../interfaces/user";
+import { GetUserQuery, User } from "../interfaces/user";
 import bcrypt from "bcrypt";
 import { InternalServerError } from "../errors/internalServerError";
 import { NotFoundError } from "../errors/notFoundError";
 import { ValidationError } from "../errors/validationError";
 import { ConflictError } from "../errors/conflictError";
 import loggerWithNameSpace from "../utils/logger";
+import { userModel } from "../model/user.model";
 
 const logger = loggerWithNameSpace("userService");
 
-export function getUsers() {
+export async function getUsers() {
   try {
-    const data = UserModel.getUsers();
+    const data = await UserModel.userModel.getUsers();
     return data;
   } catch (error) {
     throw new InternalServerError("Error fetching users");
@@ -52,13 +53,13 @@ export async function createUser(user: User) {
   }
   const password = await bcrypt.hash(user.password, 10);
   user.password = password;
-  UserModel.createUser(user);
+  UserModel.userModel.create(user);
   if (UserModel.createUser(user))
     return { message: "User created successfully" };
 }
 
-export function getUserByQuery(query: GetUserByQuery) {
-  const data = UserModel.getUserbyQuery(query);
+export function getUserByQuery(query: GetUserQuery) {
+  const data = UserModel.userModel.getUsersbyQuery(query);
   console.log("Inside service getuserbyquery");
   return data;
 }
@@ -78,7 +79,7 @@ export function updateUser(id: string, updatedUser: User) {
   if (!userExists) {
     throw new NotFoundError("user not found");
   }
-  const data = UserModel.updateUser(id, updatedUser);
+  const data = UserModel.userModel.update(id, updatedUser);
   return data;
 }
 

@@ -6,8 +6,11 @@ export interface User{
     permission : string[];
 }
 
-export interface GetUserByQuery{
+export interface GetUserQuery{
     q ?: string;
+    page ?:number;
+    size ?: number;
+    
 }
 
 

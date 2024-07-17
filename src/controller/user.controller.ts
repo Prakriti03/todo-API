@@ -4,7 +4,7 @@ import { StatusCodes } from "http-status-codes";
 import loggerWithNameSpace from "../utils/logger";
 import { BadRequestError } from "../errors/badRequestError";
 import { NotFoundError } from "../errors/notFoundError";
-import { GetUserByQuery } from "../interfaces/user";
+import { GetUserQuery } from "../interfaces/user";
 
 const logger = loggerWithNameSpace("UserController");
 
@@ -86,7 +86,7 @@ export function getUserbyId(req: Request, res: Response, next: NextFunction) {
 }
 
 export function getUserbyQuery(
-  req: Request<any, any, any, GetUserByQuery>,
+  req: Request<any, any, any, GetUserQuery>,
   res: Response
 ) {
   const { query } = req;
