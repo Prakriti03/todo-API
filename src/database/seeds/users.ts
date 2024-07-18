@@ -15,10 +15,10 @@ export function seed(knex: Knex): Promise<void> {
     .then(() => {
       return knex(TABLE_NAME).insert([
         {
-          id : 1,
-          name: "User Seed",
-          email: "user@user.com",
-          password: "test1234",
+          id : "1",
+          name: "Prakriti",
+          email: "prakriti@gmail.com",
+          password: "$2b$10$Jm7/XAw7vpdZJn7MfKoGoevMsPcEfh2prDFqivWmQlzqDBeGDO9Zq",
         },
       ]);
     });

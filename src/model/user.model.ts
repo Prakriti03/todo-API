@@ -14,7 +14,21 @@ export class userModel extends BaseModel {
       password: user.password,
     };
 
-    await this.queryBuilder().insert(userToCreate).table("Users");
+    const query = await this.queryBuilder().insert(userToCreate).table("Users");
+
+    if (query) {
+      const userPermission = [6];
+      const selectUser= await this.queryBuilder()
+        .select("id")
+        .table("Users")
+        .where("email", user.email)
+        .first();
+      for (const permissionId of userPermission) {
+        await this.queryBuilder()
+          .insert({ user_id: selectUser.id, permission_id: permissionId })
+          .table("User-Permission");
+      }
+    }
   }
 
   static async update(id: String, user: User) {
@@ -22,13 +36,13 @@ export class userModel extends BaseModel {
       name: user.name,
       email: user.email,
       password: user.password,
-      updatedAt: new Date(),
     };
 
     const query = this.queryBuilder()
       .update(userToUpdate)
-      .table("users")
-      .where({ id });
+      .table("Users")
+      .where({ id })
+      .returning("*");
 
     console.log(query.toString());
     const data = await query;
@@ -38,7 +52,7 @@ export class userModel extends BaseModel {
     const { q } = filter;
 
     const query = this.queryBuilder()
-      .select("id", "name", "email", "permission")
+      .select("id", "name", "email")
       .table("users")
       .limit(filter.size)
       .offset((filter.page - 1) * filter.size);
@@ -48,11 +62,29 @@ export class userModel extends BaseModel {
     if (data) {
       await query.whereLike("name", `%${q}%`);
     }
-    return query;
+    return data;
   }
   static async getUsers() {
-    const users = this.queryBuilder().select("*").table("users");
+    const users = this.queryBuilder().select("*").table("Users");
     const data = await users;
+    return data;
+  }
+
+  static async deleteUser(id: string) {
+    const users = this.queryBuilder()
+      .delete()
+      .table("Users")
+      .where("id", id)
+      .returning("*");
+    const data = await users;
+    return data;
+  }
+
+  static async getUserbyEmail(email: string) {
+    const data = await this.queryBuilder()
+      .table("Users")
+      .where("email", email)
+      .first();
     return data;
   }
 }

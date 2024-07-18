@@ -16,7 +16,7 @@ export async function getUsers() {
     const data = await UserModel.userModel.getUsers();
     return data;
   } catch (error) {
-    throw new InternalServerError("Error fetching users");
+    throw error;
   }
 }
 export function getUserbyId(id: string) {
@@ -47,15 +47,17 @@ export async function createUser(user: User) {
   if (!(user.email && user.password && user.name)) {
     throw new ValidationError("Missing required fields: email, password, name");
   }
+  const emailCheck = await UserModel.userModel.getUserbyEmail(user.email);
 
-  if (UserModel.getUserbyEmail(user.email)) {
+  if (emailCheck) {
     throw new ConflictError(`User with email: ${user.email} already exists`);
   }
+
   const password = await bcrypt.hash(user.password, 10);
+
   user.password = password;
-  UserModel.userModel.create(user);
-  if (UserModel.createUser(user))
-    return { message: "User created successfully" };
+  const data = UserModel.userModel.create(user);
+  if (data) return { message: "User created successfully" };
 }
 
 export function getUserByQuery(query: GetUserQuery) {
@@ -66,28 +68,28 @@ export function getUserByQuery(query: GetUserQuery) {
 
 export function getUserbyEmail(email: string) {
   try {
-    const data = UserModel.getUserbyEmail(email);
+    const data = UserModel.userModel.getUserbyEmail(email);
+
+    console.log(`existingUser !!!!!====== ${UserModel.userModel.getUserbyEmail(email)}`)
     return data;
   } catch (error) {
     throw new InternalServerError("Error fetching user by email");
   }
 }
 
-export function updateUser(id: string, updatedUser: User) {
+export async function updateUser(id: string, updatedUser: User) {
   logger.info(`update user by id`);
-  const userExists = UserModel.getUserbyId(id);
-  if (!userExists) {
-    throw new NotFoundError("user not found");
-  }
+  const password = await bcrypt.hash(updatedUser.password, 10);
+
+  updatedUser.password = password;
   const data = UserModel.userModel.update(id, updatedUser);
+
   return data;
 }
 
 export function deleteUser(id: string) {
   logger.info(`delete user by id`);
-  const userToDelete = UserModel.getUserbyId(id);
-  if (!userToDelete) {
-    return userToDelete;
-  }
-  return UserModel.deleteUser(id);
+  const data = UserModel.userModel.deleteUser(id);
+
+  return data;
 }

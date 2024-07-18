@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, query, Request, Response } from "express";
 import * as UserService from "../services/user.service";
 import { StatusCodes } from "http-status-codes";
 import loggerWithNameSpace from "../utils/logger";
@@ -20,15 +20,11 @@ const logger = loggerWithNameSpace("UserController");
  * occurs during the execution of the `createUser` function, the `next` function is called with the
  * error as an argument
  */
-export async function createUser(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export function createUser(req: Request, res: Response, next: NextFunction) {
   const { body } = req;
   try {
-    await UserService.createUser(body);
-    res.status(StatusCodes.CREATED).json(body);
+    UserService.createUser(body);
+    res.status(StatusCodes.CREATED).json(body); //should be done in service
     logger.info(`User with email ${body.email} created`);
   } catch (error) {
     next(error);
@@ -49,9 +45,13 @@ export async function createUser(
  * the next middleware function when an error occurs or when the current function has completed its
  * task. If an error occurs in the `
  */
-export function getUsers(req: Request, res: Response, next: NextFunction) {
+export async function getUsers(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
-    const data = UserService.getUsers();
+    const data = await UserService.getUsers();
     res.status(StatusCodes.OK).json(data);
   } catch (error) {
     next(error);
@@ -85,12 +85,12 @@ export function getUserbyId(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export function getUserbyQuery(
+export async function getUserbyQuery(
   req: Request<any, any, any, GetUserQuery>,
   res: Response
 ) {
   const { query } = req;
-  const data = UserService.getUserByQuery(query);
+  const data = await UserService.getUserByQuery(query);
   res.json(data);
 }
 
@@ -118,7 +118,7 @@ export async function updateUser(
   try {
     const { id: userId } = req.params;
     const { body: updatedUser } = req;
-    const user = UserService.updateUser(userId, updatedUser);
+    const user = await UserService.updateUser(userId, updatedUser);
     res.status(StatusCodes.OK).json(user);
   } catch (error) {
     next(error);
@@ -142,9 +142,9 @@ export async function updateUser(
  * @returns the data of the deleted user if the deletion was successful. If the user with the specified
  * id is not found, it will return a "User with id {id} not found" error message.
  */
-export function deleteUser(req: Request, res: Response, next: NextFunction) {
+export async function deleteUser(req: Request, res: Response, next: NextFunction) {
   const { id } = req.params;
-  const data = UserService.deleteUser(id);
+  const data = await UserService.deleteUser(id);
   if (!data) {
     next(new NotFoundError(`User with id ${id} not found`));
     return;

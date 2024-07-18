@@ -16,8 +16,8 @@ export const updateTodoBodySchema = Joi.object({
     "string.max": "Title must be less than 50 characters",
     "string.empty": "Title cannot be empty",
   }),
-  completed : Joi.boolean().empty().messages({
-    "boolean.empty" : "Status cannot be empty"
+  completed : Joi.string().empty().messages({
+    "string.empty" : "Status cannot be empty"
   })
 
 }).options({ stripUnknown: true });

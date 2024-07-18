@@ -1,6 +1,76 @@
+import { title } from "process";
 import { Todo } from "../interfaces/todo";
+import { BaseModel } from "./base";
+import { GetUserQuery } from "../interfaces/user";
 
 let todos: Todo[] = [];
+
+export class todoModel extends BaseModel {
+  static async create(todo: Todo, userId: string) {
+    const todoToCreate = {
+      title: todo.title,
+      completed: todo.completed,
+      user_id: userId,
+    };
+
+    await this.queryBuilder().insert(todoToCreate).table("Todos");
+  }
+
+  static async getTodos(userId: string) {
+    const todos = await this.queryBuilder()
+      .select("*")
+      .table("Todos")
+      .where("user_id", userId)
+      .returning("*");
+    return todos;
+  }
+
+  static async getTodosById(id: string, userId: string) {
+    const todo = this.queryBuilder()
+      .select("*")
+      .table("Todos")
+      .where({
+        id: id,
+        user_id: userId,
+      })
+      .first();
+    const data = await todo;
+    return data;
+  }
+
+  static async update(id: string, todo: Todo, userId: string) {
+    const todoUpdated = {
+      title: todo.title,
+      completed: todo.completed,
+    };
+
+    const query = this.queryBuilder()
+      .update(todoUpdated)
+      .table("Todos")
+      .where({
+        id: id,
+        user_id: userId,
+      })
+      .returning("*");
+
+    const data = await query;
+    return data;
+  }
+
+  static async delete(id: string, userId: string) {
+    const query = this.queryBuilder()
+      .delete()
+      .table("Todos")
+      .where({
+        id: id,
+        user_id: userId,
+      })
+      .returning("*");
+
+    const data = await query;
+    return data;
+  }
+}
 
 export const getTodos = (userId: string): Todo[] => {
   return todos.filter((todo) => todo.userID === userId);

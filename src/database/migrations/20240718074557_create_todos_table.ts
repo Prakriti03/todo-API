@@ -1,7 +1,6 @@
-import { Knex } from 'knex';
+import { Knex } from "knex";
 
-const TABLE_NAME = 'Todos';
-
+const TABLE_NAME = "Todos";
 
 /**
  * Create table Todos.
@@ -11,20 +10,19 @@ const TABLE_NAME = 'Todos';
  */
 export async function up(knex: Knex): Promise<void> {
   return knex.schema.createTable(TABLE_NAME, (table) => {
-    table.bigIncrements('id');
+    table.bigIncrements("id");
 
-    table.timestamp('created_at').notNullable().defaultTo(knex.raw('now()'));
-    
+    table.timestamp("created_at").notNullable().defaultTo(knex.raw("now()"));
+
     table.bigInteger("user_id").unsigned().notNullable();
-    table.string('title',100).notNullable();
-    table.string('completed',3).notNullable();
+    table.string("title", 100).notNullable();
+    table.string("completed", 3).notNullable();
 
     table
-    .foreign("user_id")
-    .references("id")
-    .inTable("Users")
-    .onDelete("CASCADE");
-
+      .foreign("user_id")
+      .references("id")
+      .inTable("Users")
+      .onDelete("CASCADE");
   });
 }
 

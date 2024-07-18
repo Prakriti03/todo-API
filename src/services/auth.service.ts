@@ -8,7 +8,7 @@ import { BadRequestError } from "../errors/badRequestError";
 import { permission } from "process";
 
 export async function login(body: Pick<User, "email" | "password">) {
-  const existingUser = getUserbyEmail(body.email);
+  const existingUser = await getUserbyEmail(body.email);
 
   if (!existingUser) {
     throw new UnauthenticatedError("User is not created");
